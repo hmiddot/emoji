@@ -1,4 +1,4 @@
-function installEmojis(elm = "*", size = 1.4, marginTop: 0.3) {
+function installEmojis(elm = "*", size = 1.4, marginTop = 0.3) {
     if (elm[0] == "#") {
         elm = document.querySelector(elm);
     } else {
