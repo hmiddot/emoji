@@ -19,7 +19,7 @@
                     while ((matches = node.nodeValue.match(emojiRegex))) {
                         const emojiElement = document.createElement("img");
                         emojiElement.alt = matches[0];
-                        emojiElement.src = `https://github.com/rhmidz/emoji/files/${matches[0]}.png`;
+                        emojiElement.src = `https://github.com/hmiddot/emoji/files/${matches[0]}.png`;
                         emojiElement.style = 'width:' + size + 'em;display:inline-block;margin-top:' + marginTop + 'em;margin-bottom:-' + marginTop + 'em';
                         const emojiIndex = node.nodeValue.indexOf(matches[0]);
                         const preMatchText = node.nodeValue.slice(0, emojiIndex);
