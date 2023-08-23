@@ -1,33 +1,47 @@
-function installEmojis(element = "*", size = 1.4, marginTop = 0.3) {
-    if (element[0] === "#") {
-        element = document.querySelector(element);
-    } else {
-        element = document.querySelectorAll(element);
+function replaceEmojisWithImages(element = "*", size = 1.4, marginTop = 0.3) {
+    const emojiRegex = /([\uD800-\uDBFF][\uDC00-\uDFFF])/;
+
+    function replaceEmojiInTextNode(node) {
+        let matches;
+        while ((matches = node.nodeValue.match(emojiRegex))) {
+            const emoji = matches[0];
+            const emojiIndex = node.nodeValue.indexOf(emoji);
+
+            const preMatchText = node.nodeValue.slice(0, emojiIndex);
+            const postMatchText = node.nodeValue.slice(emojiIndex + 2);
+
+            const preTextNode = document.createTextNode(preMatchText);
+            const emojiElement = document.createElement("img");
+
+            emojiElement.alt = emoji;
+            emojiElement.draggable = false;
+            emojiElement.src = `emojis/${emoji}.png`;
+            emojiElement.style = `width: ${size}em; display: inline-block; margin-left: 0.1em; margin-right: 0.1em; margin-top: ${marginTop}em; margin-bottom: -${marginTop}em;`;
+
+            node.nodeValue = postMatchText;
+            node.parentNode.insertBefore(preTextNode, node);
+            node.parentNode.insertBefore(emojiElement, node);
+        }
     }
-    for (let i = 0; i < element.length; i++) {
-        let elm = element[i];
-        const emojiRegex = /([\uD800-\uDBFF][\uDC00-\uDFFF])/;
-        const textNodes = document.createTreeWalker(elm, NodeFilter.SHOW_TEXT, null, false);
-        while (textNodes.nextNode()) {
-            const node = textNodes.currentNode;
-            let matches;
-            while ((matches = node.nodeValue.match(emojiRegex))) {
-                const emojiElement = document.createElement("img");
-                emojiElement.alt = matches[0];
-                emojiElement.draggable = false;
-                emojiElement.src = `https://raw.githubusercontent.com/hmiddot/emoji/main/files/${matches[0]}.png`;
-                emojiElement.style = 'width:' + size + 'em;display:inline-block;margin-left:.1em;margin-right:.1em;margin-top:' + marginTop + 'em;margin-bottom:-' + marginTop + 'em';
-                const emojiIndex = node.nodeValue.indexOf(matches[0]);
-                const preMatchText = node.nodeValue.slice(0, emojiIndex);
-                const postMatchText = node.nodeValue.slice(emojiIndex + 2);
-                const preTextNode = document.createTextNode(preMatchText);
-                node.nodeValue = postMatchText;
-                node.parentNode.insertBefore(emojiElement, node);
-                node.parentNode.insertBefore(preTextNode, node);
-                textNodes.currentNode = preTextNode;
+
+    function traverseAndReplace(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            replaceEmojiInTextNode(node);
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+            for (const childNode of node.childNodes) {
+                traverseAndReplace(childNode);
             }
         }
     }
-}
 
-installEmojis('body',1.4,.07 );
+    if (element[0] === "#") {
+        const targetElement = document.querySelector(element);
+        traverseAndReplace(targetElement);
+    } else {
+        const targetElements = document.querySelectorAll(element);
+        for (const targetElement of targetElements) {
+            traverseAndReplace(targetElement);
+        }
+    }
+}
+replaceEmojisWithImages('body', 1.3, 0.25);
